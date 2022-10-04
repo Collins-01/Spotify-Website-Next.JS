@@ -1,6 +1,7 @@
 import { ChevronDown } from "heroicons-react";
 import { useEffect, useState } from "react";
 import {shuffle} from 'lodash';
+import { useSession } from "next-auth/react";
 
 const colors =[
     'from-indigo-500',
@@ -12,8 +13,10 @@ const colors =[
     'from-purple-500'
 ]
 
+
 const Center =()=>{
     const [color,setColor] =useState<string>();
+    const {data:session, status} = useSession();
    useEffect(()=>{
         setColor(shuffle(colors).pop())
    },[])
