@@ -1,8 +1,14 @@
 import type { NextPage } from "next";
+import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
 import Center from "../components/Center";
 import SideBar from "../components/SIdeBar";
 
-const Home: NextPage = () => {
+interface Props {
+  session: Session
+}
+const Home: NextPage = (props) => {
+  const {data:session, status} = useSession();
   return (
     <div className='bg-black h-screen overflow-hidden'>
       <main className='flex'>
