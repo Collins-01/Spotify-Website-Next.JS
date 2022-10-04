@@ -1,4 +1,5 @@
-//  import  SpotifyWebApi  from "spotify-web-api-node";
+
+import { SpotifyWebApi } from 'spotify-web-api-ts';
 const scopes = [
     'user-read-email',
     'playlist-read-private',
@@ -32,8 +33,15 @@ export const LOGIN_URL = `https://ccounts.spotify.com/authorize?${queryParamsStr
 //     clientSecret: process.env.NEXT_PUBLIC_SECRET,
 
 // });
-
+  
 
 // export default spotifyApi;
 
+const spotifyWebApi = new SpotifyWebApi({ 
+    clientId: process.env.NEXT_PUBLIC_CLIENT_ID,
+    clientSecret: process.env.NEXT_PUBLIC_SECRET,
 
+ });
+
+
+export default spotifyWebApi;
