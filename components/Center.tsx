@@ -1,7 +1,7 @@
 import { ChevronDown } from "heroicons-react";
 import { useEffect, useState } from "react";
 import {shuffle} from 'lodash';
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 
 const colors =[
     'from-indigo-500',
@@ -17,8 +17,14 @@ const colors =[
 const Center =()=>{
     const [color,setColor] =useState<string>();
     const {data:session, status} = useSession();
+
+    const sss = async()=>{
+      const k =  await getSession();
+      console.log(`Session::::: ${k}`)
+    }
    useEffect(()=>{
         setColor(shuffle(colors).pop())
+        sss();
    },[])
     const userImage = "https://images.unsplash.com/photo-1604164448130-d1df213c64eb?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1035&q=80";
     const userName = session?.expires;
@@ -39,6 +45,8 @@ const Center =()=>{
                 alt="" 
                 src=""/> */}
                 <h1>Hello</h1>
+                <h1>{session?.user?.name}</h1>
+                <h1>{status}</h1>
              </section>
         </div>
     );

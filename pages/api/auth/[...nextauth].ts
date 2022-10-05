@@ -4,6 +4,8 @@ import SpotifyProvider from "next-auth/providers/spotify";
 import  spotifyWebApi,{ LOGIN_URL } from "../../../lib/spotify";
 
 
+const scope =
+  "user-read-recently-played user-read-playback-state user-top-read user-modify-playback-state user-read-currently-playing user-follow-read playlist-read-private user-read-email user-read-private user-library-read playlist-read-collaborative";
 
 // *Handles Refreshing of the access token..
 const handleRefreshToken = async(token:JWT,account:Account)=>{
@@ -32,14 +34,12 @@ const handleRefreshToken = async(token:JWT,account:Account)=>{
 
 
 export const nextAuthOptions: NextAuthOptions = {
-  session: {
-    strategy: "jwt",
-  },
   providers: [
     SpotifyProvider({
       clientId: process.env.NEXT_PUBLIC_CLIENT_ID  as string,
       clientSecret: process.env.NEXT_PUBLIC_SECRET as string,
       authorization: LOGIN_URL,
+      
       
     }),
   ],
@@ -52,34 +52,32 @@ export const nextAuthOptions: NextAuthOptions = {
     const expiresAt = account?.expires_at ?? 3600;
     //* If Initial SignIn
     //* Check for Account and User not null 
-      if(account && user){
-        return {
-          ...token,
-          accessToken: account?.access_token,
-          refreshToken: account?.refresh_token,
-          name : account.providerAccountId,
-          accessTokenExpires: Date.now() + expiresAt *1000,  //*Handling expiry time in milliseconds i.e * 1000
-        }
+      // if(account && user){
+      //   return {
+      //     ...token,
+      //     accessToken: account?.access_token,
+      //     refreshToken: account?.refresh_token,
+      //     name : account.providerAccountId,
+      //     accessTokenExpires: Date.now() + expiresAt *1000,  //*Handling expiry time in milliseconds i.e * 1000
+      //   }
+      // }
+      // //* Return previous token if the access token has not expired yet
+      // if (Date.now() < expiresAt) {
+      //   console.log('EXISTING TOKEN IS VALID');
+      //   return token;
+      // }
+      // return await handleRefreshToken(token, account!);
+
+      if (account) {
+        token.id = account.id;
+        token.expires_at = account.expires_at;
+        token.accessToken = account.access_token;
       }
-      //* Return previous token if the access token has not expired yet
-      if (Date.now() < expiresAt) {
-        console.log('EXISTING TOKEN IS VALID');
-        return token;
-      }
-      return await handleRefreshToken(token, account!);
+      return token;
 
     },
-   async session({session,user,token}) {
-    // console.log(`SESSIONS :::: ${session.user}`)
-    // console.log(`USER :::: ${user.name}`)
-    // console.log(`TOKEN :::: ${token.email}`)
-    //   var name = session.user?.name;
-    //   var email = session.user?.email
-    //   var image= session.user?.image
-    //   name = token.name;
-    //   email = user.email;
-    //   image= user.image;
-
+    async session({ session, token }) {
+      session.user = token;
       return session;
     },
     

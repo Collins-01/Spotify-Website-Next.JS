@@ -11,18 +11,15 @@ interface Props {
 const Home: NextPage = (props) => {
   const {data:session, status} = useSession();
   
-   
-  const handleSession = async()=>{
-    const k =  await getSession();
-    console.log(`Session is ::::: ${k?.user?.name}`)
-  }
+  
    
   return (
     <div className='bg-black h-screen overflow-hidden'>
       <main className='flex'>
         {/* SideBar */}
-        <SideBar />
-        <Center/>
+      
+         <SideBar />
+        <Center/> 
       </main>
       <div>
         {/* Player */}
@@ -34,6 +31,7 @@ const Home: NextPage = (props) => {
 export default Home;
 
 
+// "@types/next-auth": "^3.15.0",
 // "@types/next-auth": "^3.15.0",
 
 
