@@ -2,10 +2,12 @@ import { NextPage } from "next";
 import { getProviders, signIn, useSession } from "next-auth/react";
 
 
-const Login: NextPage = (props) =>{
+const Login: NextPage = () =>{
     const {data: session, status} = useSession();
-    const handleSignIn = ()=>{
-        signIn();
+    const handleSignIn = async()=>{
+        await signIn().catch((e)=>{
+          console.log(`Errror ::: ${e}`)
+        });
     }
   return (
     <div className='place-items-center'>
@@ -27,12 +29,12 @@ const Login: NextPage = (props) =>{
 export default Login;
 
 
-export async function getServerSideProps(){
-  //  
-  const providers = await getProviders();
-  return {
-    props: {
-      providers,
-    }
-  };
-}
+// export async function getServerSideProps(){
+//   //  
+//   const providers = await getProviders();
+//   return {
+//     props: {
+//       providers,
+//     }
+//   };
+// }

@@ -33,7 +33,9 @@ var spotifyWebApi = new SpotifyWebApi({
   clientSecret: process.env.NEXT_PUBLIC_SECRET as string,
   redirectUri: "http://localhost:3000",
 });
+// process.env.NEXTAUTH_URL as string
 
 export default spotifyWebApi;
+
 
 // https://adamgrieger.github.io/spotify-web-api-ts/

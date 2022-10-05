@@ -21,7 +21,8 @@ const Center =()=>{
         setColor(shuffle(colors).pop())
    },[])
     const userImage = "https://images.unsplash.com/photo-1604164448130-d1df213c64eb?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1035&q=80";
-    const userName = "Oriakhi Collins"
+    const userName = session?.expires;
+    // "Oriakhi Collins"
     return (
         <div className='flex-grow text-white'>
             <header className='absolute top-5 right-8'>
