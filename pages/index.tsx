@@ -6,34 +6,28 @@ import Center from "../components/Center";
 import SideBar from "../components/SIdeBar";
 
 interface Props {
-  session: Session
+  session: Session;
 }
 const Home: NextPage = (props) => {
-  const {data:session, status} = useSession();
-  
-  
-   
+  const { data: session, status } = useSession();
+
   return (
-    <div className='bg-black h-screen overflow-hidden'>
-      <main className='flex'>
+    <div className="bg-black h-screen overflow-hidden">
+      <main className="flex">
         {/* SideBar */}
-      
-         <SideBar />
-        <Center/> 
+
+        <SideBar />
+        <Center />
       </main>
-      <div>
-        {/* Player */}
-      </div>
+      <div>{/* Player */}</div>
     </div>
   );
 };
 
 export default Home;
 
-
 // "@types/next-auth": "^3.15.0",
 // "@types/next-auth": "^3.15.0",
-
 
 // export const getServerSideProps: GetServerSideProps<{
 //   session: Session | null
