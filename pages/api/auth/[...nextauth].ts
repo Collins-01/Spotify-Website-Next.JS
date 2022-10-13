@@ -1,46 +1,61 @@
 import NextAuth, { Account, NextAuthOptions } from "next-auth";
-import { JWT } from "next-auth/jwt";
+// import { JWT } from "next-auth/jwt";
 import SpotifyProvider from "next-auth/providers/spotify";
 import spotifyWebApi, { LOGIN_URL } from "../../../lib/spotify";
 
 const scope =
   "user-read-recently-played user-read-playback-state user-top-read user-modify-playback-state user-read-currently-playing user-follow-read playlist-read-private user-read-email user-read-private user-library-read playlist-read-collaborative";
 
-// *Handles Refreshing of the access token..
-// const handleRefreshToken = async (token: JWT, account: Account) => {
-//   try {
-//     spotifyWebApi.setAccessToken(account.access_token as string);
-//     spotifyWebApi.setRefreshToken(account.refresh_token as string);
-//     // TODO: set RefreshToken
-//     const { body: refreshedToken } = await spotifyWebApi.refreshAccessToken();
-//     console.log(`REFRESHED TOKEN IS : ${refreshedToken}`);
+async function refreshAccessToken(token: Account) {
+  try {
+    spotifyWebApi.setAccessToken(String(token.accessToken));
+    spotifyWebApi.setAccessToken(String(token.refreshToken));
 
-//     return {
-//       ...token,
-//       accessToken: refreshedToken.access_token,
-//       accessTokenExpires: Date.now() + refreshedToken.expires_in * 1000,
-//       refreshToken: refreshedToken.refresh_token ?? account.refresh_token,
-//     };
-//   } catch (error) {
-//     console.log(`Error :::: ${error}`);
+    const { body: refreshedToken } = await spotifyWebApi.refreshAccessToken();
 
-//     return {
-//       ...token,
-//       error: "RefreshAccessTokenError",
-//     };
-//   }
-// };
+    console.log("Refreshed token is", refreshedToken);
+
+    return {
+      ...token,
+      accessToken: refreshedToken.access_token,
+      accessTokenExpires: Date.now() + refreshedToken.expires_in * 1000,
+      refreshToken: refreshedToken.refresh_token ?? token.refreshToken,
+    };
+  } catch (error) {
+    console.error(error);
+
+    return {
+      ...token,
+      error: "RefreshAccessTokenError",
+    };
+  }
+}
 
 export const nextAuthOptions: NextAuthOptions = {
   providers: [
     SpotifyProvider({
       clientId: process.env.NEXT_PUBLIC_CLIENT_ID as string,
       clientSecret: process.env.NEXT_PUBLIC_SECRET as string,
-      // authorization: LOGIN_URL,
+      authorization: {
+        params: { scope },
+      },
     }),
   ],
   pages: {},
-  callbacks: {},
+  callbacks: {
+    async jwt({ token, user, account }) {
+      if (account) {
+        token.id = account.id;
+        token.expires_at = account.expires_at;
+        token.accessToken = account.access_token;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.user = token;
+      return session;
+    },
+  },
   secret: process.env.JWT_SECRET as string,
   debug: true,
 };

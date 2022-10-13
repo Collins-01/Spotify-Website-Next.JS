@@ -1,40 +1,51 @@
 import type { GetServerSideProps, NextPage } from "next";
-import { Session } from "next-auth";
 import { getSession, signIn, signOut, useSession } from "next-auth/react";
-import { useEffect } from "react";
 import Center from "../components/Center";
 import SideBar from "../components/SIdeBar";
+import IPlaylistType from "../types/playlist_type";
+import { customGet } from "../utils/customGet";
+import { isAuthenticated } from "../utils/isAuthenticated";
 
 interface Props {
-  session: Session;
+  playlists: IPlaylistType[];
 }
-const Home: NextPage = (props) => {
-  const { data: session, status } = useSession();
 
+function Home({ playlists }: Props) {
   return (
     <div className="bg-black h-screen overflow-hidden">
       <main className="flex">
         {/* SideBar */}
 
-        <SideBar />
+        <SideBar featuredPlaylists={playlists} />
         <Center />
+        <p className="text-white">{}</p>
       </main>
       <div>{/* Player */}</div>
     </div>
   );
-};
+}
 
 export default Home;
 
-// "@types/next-auth": "^3.15.0",
-// "@types/next-auth": "^3.15.0",
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getSession(context);
+  if (!(await isAuthenticated(session))) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
 
-// export const getServerSideProps: GetServerSideProps<{
-//   session: Session | null
-// }> = async (context) => {
-//   return {
-//     props: {
-//       session: await getSession(context),
-//     },
-//   }
-// }
+  const featuredPlaylists = await customGet(
+    "https://api.spotify.com/v1/me/playlists",
+    session
+  );
+  console.log(featuredPlaylists.items);
+  return {
+    props: {
+      playlists: featuredPlaylists?.items,
+    },
+  };
+};

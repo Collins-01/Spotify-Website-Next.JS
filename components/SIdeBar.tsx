@@ -7,13 +7,21 @@ import {
   SearchOutline,
   SwitchVerticalOutline,
 } from "heroicons-react";
-import { signIn, useSession } from "next-auth/react";
+import { GetServerSideProps } from "next";
+import { getSession, signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { useRecoilState } from "recoil";
+import { playlistIdState } from "../atoms/playlistsAtom";
+import IPlaylistType from "../types/playlist_type";
+import { customGet } from "../utils/customGet";
+import { isAuthenticated } from "../utils/isAuthenticated";
 
-const SideBar = () => {
-  // const {data:session, status} = useSession();
-  const [playLists, setPlaylist] = useState([]);
+interface Props {
+  featuredPlaylists: IPlaylistType[];
+}
 
+const SideBar = ({ featuredPlaylists }: Props) => {
+  const [playlistId, setPlaylistId] = useRecoilState(playlistIdState);
   useEffect(() => {}, []);
 
   return (
@@ -69,16 +77,50 @@ const SideBar = () => {
         </button>
         <hr className="border-t-[0.1px] border-gray-900" />
         {/* My Playlists */}
+        {featuredPlaylists.map((e) => (
+          <p
+            className="cursor-pointer hover:text-white"
+            onClick={() => setPlaylistId(e.id)}
+            key={e.id}
+          >
+            {e.name}
+          </p>
+        ))}
+
+        {/* <p className="cursor-pointer hover:text-white">Playlist name ...</p>
         <p className="cursor-pointer hover:text-white">Playlist name ...</p>
         <p className="cursor-pointer hover:text-white">Playlist name ...</p>
         <p className="cursor-pointer hover:text-white">Playlist name ...</p>
         <p className="cursor-pointer hover:text-white">Playlist name ...</p>
         <p className="cursor-pointer hover:text-white">Playlist name ...</p>
-        <p className="cursor-pointer hover:text-white">Playlist name ...</p>
-        <p className="cursor-pointer hover:text-white">Playlist name ...</p>
+        <p className="cursor-pointer hover:text-white">Playlist name ...</p> */}
       </div>
     </div>
   );
 };
 
 export default SideBar;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getSession(context);
+  if (!(await isAuthenticated(session))) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+
+  // https://api.spotify.com/v1/browse/featured-playlists?country=IN
+  const featuredPlaylists = await customGet(
+    "https://api.spotify.com/v1/me/playlists",
+    session
+  );
+  console.log(featuredPlaylists);
+  return {
+    props: {
+      featuredPlaylists,
+    },
+  };
+};
