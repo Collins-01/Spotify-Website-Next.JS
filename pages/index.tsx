@@ -1,48 +1,51 @@
 import type { GetServerSideProps, NextPage } from "next";
-import { Session } from "next-auth";
 import { getSession, signIn, signOut, useSession } from "next-auth/react";
-import { useEffect } from "react";
 import Center from "../components/Center";
+import Player from "../components/Player";
 import SideBar from "../components/SIdeBar";
+import IPlaylistType from "../types/playlist_type";
+import { customGet } from "../utils/customGet";
+import { isAuthenticated } from "../utils/isAuthenticated";
 
 interface Props {
-  session: Session
+  playlists: IPlaylistType[];
 }
-const Home: NextPage = (props) => {
-  const {data:session, status} = useSession();
-  
-   
-  const handleSession = async()=>{
-    const k =  await getSession();
-    console.log(`Session is ::::: ${k?.user?.name}`)
-  }
-   
+
+function Home({ playlists }: Props) {
   return (
-    <div className='bg-black h-screen overflow-hidden'>
-      <main className='flex'>
-        {/* SideBar */}
-        <SideBar />
-        <Center/>
+    <div className="bg-black h-screen overflow-hidden">
+      <main className="flex">
+        <SideBar featuredPlaylists={playlists} />
+        <Center />
       </main>
-      <div>
-        {/* Player */}
+      <div className='sticky bottom-0'>
+        <Player /> 
       </div>
     </div>
   );
-};
+}
 
 export default Home;
 
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getSession(context);
+  if (!(await isAuthenticated(session))) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
 
-// "@types/next-auth": "^3.15.0",
-
-
-// export const getServerSideProps: GetServerSideProps<{
-//   session: Session | null
-// }> = async (context) => {
-//   return {
-//     props: {
-//       session: await getSession(context),
-//     },
-//   }
-// }
+  const featuredPlaylists = await customGet(
+    "https://api.spotify.com/v1/me/playlists",
+    session
+  );
+  console.log(featuredPlaylists.items);
+  return {
+    props: {
+      playlists: featuredPlaylists?.items,
+    },
+  };
+};

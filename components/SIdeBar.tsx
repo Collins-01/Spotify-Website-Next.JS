@@ -5,22 +5,35 @@ import {
   PlusCircleOutline,
   RssOutline,
   SearchOutline,
+  SwitchVerticalOutline,
 } from "heroicons-react";
-import { useSession } from "next-auth/react";
+import { GetServerSideProps } from "next";
+import { getSession, signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-// import useSpotify from "../hooks/useSpotify";
-// const spotifyApi= useSpotify();
+import { useRecoilState } from "recoil";
+import { playlistIdState } from "../atoms/playlistsAtom";
+import IPlaylistType from "../types/playlist_type";
+import { customGet } from "../utils/customGet";
+import { isAuthenticated } from "../utils/isAuthenticated";
 
-const SideBar = () => {
-  // const {data:session, status} = useSession();
-  const [playLists, setPlaylist] = useState([]);
+interface Props {
+  featuredPlaylists: IPlaylistType[];
+}
 
-    useEffect(()=>{},[])
+const SideBar = ({ featuredPlaylists }: Props) => {
+  const [playlistId, setPlaylistId] = useRecoilState(playlistIdState);
 
   return (
-    <div className="text-gray-500 p-5 text-sm border-r border-gray-900 overflow-y-scroll scrollbar-hide  h-screen">
+    <div className="text-gray-500 p-5 text-xs lg:text-sm border-r border-gray-900 overflow-y-scroll scrollbar-hide  h-screen sm:max-w-[12rem] lg:max-w-[15rem] hidden md:inline-flex pb-36">
       {/* Items */}
       <div className="space-y-4">
+        <button
+          className="flex items-center space-x-2 hover:text-white"
+          onClick={() => signIn("spotify")}
+        >
+          <SwitchVerticalOutline className="h-5 w-5" />
+          <p>Login</p>
+        </button>
         <button className="flex items-center space-x-2 hover:text-white">
           <HomeOutline className="h-5 w-5" />
           <p>Home</p>
@@ -63,16 +76,50 @@ const SideBar = () => {
         </button>
         <hr className="border-t-[0.1px] border-gray-900" />
         {/* My Playlists */}
-        <p className='cursor-pointer hover:text-white'>Playlist name ...</p>
-        <p className='cursor-pointer hover:text-white'>Playlist name ...</p>
-        <p className='cursor-pointer hover:text-white'>Playlist name ...</p>
-        <p className='cursor-pointer hover:text-white'>Playlist name ...</p>
-        <p className='cursor-pointer hover:text-white'>Playlist name ...</p>
-        <p className='cursor-pointer hover:text-white'>Playlist name ...</p>
-        <p className='cursor-pointer hover:text-white'>Playlist name ...</p>
+        {featuredPlaylists.map((e) => (
+          <p
+            className="cursor-pointer hover:text-white"
+            onClick={() => setPlaylistId(e.id)}
+            key={e.id}
+          >
+            {e.name}
+          </p>
+        ))}
+
+        {/* <p className="cursor-pointer hover:text-white">Playlist name ...</p>
+        <p className="cursor-pointer hover:text-white">Playlist name ...</p>
+        <p className="cursor-pointer hover:text-white">Playlist name ...</p>
+        <p className="cursor-pointer hover:text-white">Playlist name ...</p>
+        <p className="cursor-pointer hover:text-white">Playlist name ...</p>
+        <p className="cursor-pointer hover:text-white">Playlist name ...</p>
+        <p className="cursor-pointer hover:text-white">Playlist name ...</p> */}
       </div>
     </div>
   );
 };
 
 export default SideBar;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getSession(context);
+  if (!(await isAuthenticated(session))) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+
+  // https://api.spotify.com/v1/browse/featured-playlists?country=IN
+  const featuredPlaylists = await customGet(
+    "https://api.spotify.com/v1/me/playlists",
+    session
+  );
+  console.log(featuredPlaylists);
+  return {
+    props: {
+      featuredPlaylists,
+    },
+  };
+};
