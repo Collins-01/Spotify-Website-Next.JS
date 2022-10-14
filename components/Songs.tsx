@@ -1,16 +1,15 @@
 import React from "react";
+import { useRecoilValue } from "recoil";
+import { playlistState } from "../atoms/playlistsAtom";
 import IPlaylistType from "../types/playlist_type";
 import Song from "./Song";
 
-interface Props {
-  playlist?: IPlaylistType | null;
-}
-
-function Songs({ playlist }: Props) {
+function Songs() {
+  const playlistItem = useRecoilValue(playlistState);
   return (
     <div className="px-6 flex flex-col mt-3 space-y-2 pb-28 text-white">
-      {playlist?.tracks?.items?.map((item, i) => (
-        <Song track={item.track} key={item.track.id} />
+      {playlistItem?.tracks?.items?.map((track, i) => (
+        <Song track={track.track} key={`$${i}`} order={i} />
       ))}
     </div>
   );

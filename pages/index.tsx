@@ -1,6 +1,7 @@
 import type { GetServerSideProps, NextPage } from "next";
 import { getSession, signIn, signOut, useSession } from "next-auth/react";
 import Center from "../components/Center";
+import Player from "../components/Player";
 import SideBar from "../components/SIdeBar";
 import IPlaylistType from "../types/playlist_type";
 import { customGet } from "../utils/customGet";
@@ -14,13 +15,12 @@ function Home({ playlists }: Props) {
   return (
     <div className="bg-black h-screen overflow-hidden">
       <main className="flex">
-        {/* SideBar */}
-
         <SideBar featuredPlaylists={playlists} />
         <Center />
-        <p className="text-white">{}</p>
       </main>
-      <div>{/* Player */}</div>
+      <div className='sticky bottom-0'>
+        <Player /> 
+      </div>
     </div>
   );
 }

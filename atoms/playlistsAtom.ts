@@ -1,7 +1,8 @@
 import { atom } from "recoil";
+import IPlaylistType from "../types/playlist_type";
 
-export const playlistState = atom({
-  key: "playlist",
+export const playlistState = atom<IPlaylistType | null| undefined>({
+  key: "playlistState",
   default: null,
 });
 
