@@ -4,7 +4,9 @@ import { getProviders, signIn, useSession } from "next-auth/react";
 const Login: NextPage = () => {
   const { data: session, status } = useSession();
   const handleSignIn = async () => {
-    await signIn().catch((e) => {
+    await signIn("spotify", {
+      callbackUrl: "http://localhost:3000",
+    }).catch((e) => {
       console.log(`Errror ::: ${e}`);
     });
   };
