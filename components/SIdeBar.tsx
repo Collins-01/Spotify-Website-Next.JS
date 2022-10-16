@@ -27,13 +27,6 @@ const SideBar = ({ featuredPlaylists }: Props) => {
     <div className="text-gray-500 p-5 text-xs lg:text-sm border-r border-gray-900 overflow-y-scroll scrollbar-hide  h-screen sm:max-w-[12rem] lg:max-w-[15rem] hidden md:inline-flex pb-36">
       {/* Items */}
       <div className="space-y-4">
-        <button
-          className="flex items-center space-x-2 hover:text-white"
-          onClick={() => signIn("spotify")}
-        >
-          <SwitchVerticalOutline className="h-5 w-5" />
-          <p>Login</p>
-        </button>
         <button className="flex items-center space-x-2 hover:text-white">
           <HomeOutline className="h-5 w-5" />
           <p>Home</p>
@@ -85,14 +78,6 @@ const SideBar = ({ featuredPlaylists }: Props) => {
             {e.name}
           </p>
         ))}
-
-        {/* <p className="cursor-pointer hover:text-white">Playlist name ...</p>
-        <p className="cursor-pointer hover:text-white">Playlist name ...</p>
-        <p className="cursor-pointer hover:text-white">Playlist name ...</p>
-        <p className="cursor-pointer hover:text-white">Playlist name ...</p>
-        <p className="cursor-pointer hover:text-white">Playlist name ...</p>
-        <p className="cursor-pointer hover:text-white">Playlist name ...</p>
-        <p className="cursor-pointer hover:text-white">Playlist name ...</p> */}
       </div>
     </div>
   );
